@@ -153,7 +153,12 @@
   if (!MULTI_ACCOUNT) {
     var acctFilterEl = document.getElementById('acctFilter');
     if (acctFilterEl) acctFilterEl.style.display = 'none';
-    document.querySelectorAll('.acct-col').forEach(function (el) { el.style.display = 'none'; });
+    // Hides the (static) header cell. Body cells for this column are only
+    // ever emitted by render() when MULTI_ACCOUNT is true (see below) —
+    // toggling display on tbody's .acct-col here would be a no-op for
+    // rows built after this point, and a stale one for rows built before,
+    // so the row count/header count could silently drift out of sync.
+    document.querySelectorAll('thead .acct-col').forEach(function (el) { el.style.display = 'none'; });
   }
 
   function within(dateStr, days) {
@@ -204,9 +209,10 @@
     document.getElementById('emptyMsg').style.display = rows.length ? 'none' : 'block';
     tbody.innerHTML = rows.map(function (r) {
       var statusBadge = '<span class="badge ' + esc(r.st) + '">' + esc(r.st) + '</span>';
+      var acctCell = MULTI_ACCOUNT ? ('<td class="acct-col">' + esc(r.acct) + '</td>') : '';
       return '<tr>' +
         '<td>' + esc(r.d) + '</td>' +
-        '<td class="acct-col">' + esc(r.acct) + '</td>' +
+        acctCell +
         '<td>' + esc(r.f) + '</td>' +
         '<td>' + esc(r.a) + '</td>' +
         '<td>' + esc(r.s) + '</td>' +
