@@ -6,56 +6,65 @@
 <title>Inbox Catalog</title>
 <style>
   :root {
-    --bg: #f7f7f8; --panel: #ffffff; --border: #e2e2e6; --text: #1c1c1f;
-    --muted: #6b6b74; --accent: #3b5bfd; --warn: #c8460a; --warn-bg: #fdeee6;
-    --chip-bg: #eef0f6; --chip-active-bg: #1c1c1f; --chip-active-text: #fff;
-    --row-hover: #f2f3f7;
+    --bg: #f5f6f7; --panel: #ffffff; --border: #e2e4e8; --text: #14171a;
+    --muted: #666d76; --accent: #0f9488; --accent-text: #ffffff;
+    --warn: #b45309; --warn-bg: #fdf1e0;
+    --chip-bg: #eceef1; --row-hover: #f1f3f5;
+    --mono: "SF Mono", "JetBrains Mono", "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #17171a; --panel: #1f1f23; --border: #303036; --text: #eceef2;
-      --muted: #9a9aa4; --accent: #7c93ff; --warn: #ff8f5c; --warn-bg: #3a2318;
-      --chip-bg: #2a2a30; --chip-active-bg: #eceef2; --chip-active-text: #17171a;
-      --row-hover: #26262c;
+      --bg: #0d1113; --panel: #12181b; --border: #232b2f; --text: #eef1f2;
+      --muted: #8b959b; --accent: #2dd4bf; --accent-text: #0d1113;
+      --warn: #f0a03c; --warn-bg: #2c2013;
+      --chip-bg: #1b2226; --row-hover: #182022;
     }
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; background: var(--bg); color: var(--text);
-    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font: 14px/1.5 var(--sans);
   }
   header {
     padding: 20px 24px 16px; border-bottom: 1px solid var(--border); background: var(--panel);
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;
   }
-  header h1 { margin: 0 0 2px; font-size: 19px; }
-  header .sub { margin: 0 0 14px; color: var(--muted); font-size: 12.5px; }
-  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  header .titleblock h1 { margin: 0 0 2px; font-size: 19px; font-weight: 650; }
+  header .sub { margin: 0; color: var(--muted); font-size: 12.5px; }
+  header .meta {
+    text-align: right; color: var(--muted); font: 12px/1.5 var(--mono);
+    white-space: nowrap;
+  }
+  .bar { padding: 0 24px 16px; background: var(--panel); border-bottom: 1px solid var(--border); }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin: 16px 0 14px; padding: 0 24px; }
   .stat {
     background: var(--chip-bg); border-radius: 10px; padding: 8px 14px; min-width: 108px;
   }
   .stat.warn { background: var(--warn-bg); color: var(--warn); }
-  .stat .n { font-size: 18px; font-weight: 650; }
-  .stat .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+  .stat .n { font: 700 18px/1.3 var(--mono); font-variant-numeric: tabular-nums; }
+  .stat .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
   .stat.warn .l { color: var(--warn); opacity: .85; }
   .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip {
-    background: var(--chip-bg); border-radius: 999px; padding: 5px 12px; font-size: 12.5px;
-    cursor: pointer; user-select: none; color: var(--text);
-  }
-  .chip.active { background: var(--chip-active-bg); color: var(--chip-active-text); }
   select, input[type="search"] {
     background: var(--panel); color: var(--text); border: 1px solid var(--border);
     border-radius: 8px; padding: 6px 10px; font-size: 13px;
   }
-  .range-btns { display: flex; gap: 4px; }
+  .range-btns { display: flex; gap: 4px; flex-wrap: wrap; }
   .range-btns button {
     background: var(--chip-bg); color: var(--text); border: none; border-radius: 8px;
     padding: 6px 10px; font-size: 12.5px; cursor: pointer;
   }
-  .range-btns button.active { background: var(--accent); color: #fff; }
+  .range-btns button.active { background: var(--accent); color: var(--accent-text); }
+  .search-wrap { flex: 1 1 220px; min-width: 180px; }
+  .search-wrap input { width: 100%; }
   main { padding: 16px 24px 40px; }
-  table { width: 100%; border-collapse: collapse; background: var(--panel); border-radius: 10px; overflow: hidden; }
+  .count { color: var(--muted); font-size: 12.5px; margin-bottom: 8px; }
+  .table-wrap {
+    background: var(--panel); border-radius: 10px; border: 1px solid var(--border);
+    overflow-x: auto; overflow-y: visible; max-width: 100%;
+  }
+  table { width: 100%; min-width: 920px; border-collapse: collapse; }
   thead th {
     text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .03em;
     color: var(--muted); padding: 10px 12px; border-bottom: 1px solid var(--border);
@@ -73,56 +82,68 @@
   }
   .badge.needs_review { background: var(--warn-bg); color: var(--warn); }
   .empty { text-align: center; color: var(--muted); padding: 40px 0; }
-  .count { color: var(--muted); font-size: 12.5px; margin-bottom: 8px; }
 </style>
 </head>
 <body>
 <header>
-  <h1>Inbox Catalog</h1>
-  <p class="sub">Inbox triage log &mdash; read-only snapshot, rebuilt after each batch (see build_viewer.py)</p>
+  <div class="titleblock">
+    <h1>Inbox Catalog</h1>
+    <p class="sub">Inbox triage log &mdash; read-only snapshot, rebuilt after each batch (see build_viewer.py)</p>
+  </div>
+  <div class="meta" id="headerMeta">0 messages cataloged</div>
+</header>
+<div class="bar">
   <div class="stats">
-    <div class="stat"><div class="n">0</div><div class="l">total cataloged</div></div>
-    <div class="stat warn"><div class="n">0</div><div class="l">needs review</div></div>
-    <div class="stat"><div class="n">0</div><div class="l">auto-cleared</div></div>
+    <div class="stat"><div class="n" id="statInView">0</div><div class="l">in view</div></div>
+    <div class="stat"><div class="n" id="statTotal">0</div><div class="l">total cataloged</div></div>
+    <div class="stat warn"><div class="n" id="statReview">0</div><div class="l">needs review</div></div>
+    <div class="stat"><div class="n" id="statCleared">0</div><div class="l">auto-cleared</div></div>
   </div>
   <div class="controls">
-    <div class="chips" id="chips">
-      <span class="chip active" data-cat="">All categories</span>
+    <div class="range-btns" id="rangeBtns">
+      <button data-days="1">24h</button>
+      <button data-days="3">3d</button>
+      <button data-days="7" class="active">7d</button>
+      <button data-days="30">30d</button>
+      <button data-days="90">90d</button>
+      <button data-days="0">All</button>
     </div>
+    <select id="categoryFilter">
+      <option value="">All categories</option>
+    </select>
     <select id="statusFilter">
       <option value="">All statuses</option>
     </select>
     <select id="acctFilter">
       <option value="">All accounts</option>
     </select>
-    <div class="range-btns" id="rangeBtns">
-      <button data-days="7" class="active">7d</button>
-      <button data-days="30">30d</button>
-      <button data-days="0">All</button>
+    <div class="search-wrap">
+      <input type="search" id="search" placeholder="Search subject / sender / notes&hellip;">
     </div>
-    <input type="search" id="search" placeholder="Search subject / sender / notes&hellip;">
   </div>
-</header>
+</div>
 <main>
   <div class="count" id="count"></div>
-  <table>
-    <thead>
-      <tr>
-        <th data-key="d">Date</th>
-        <th data-key="acct" class="acct-col">Account</th>
-        <th data-key="f">From</th>
-        <th data-key="a">To</th>
-        <th data-key="s">Subject</th>
-        <th data-key="c">Category</th>
-        <th data-key="sa">Sub-action</th>
-        <th data-key="st">Status</th>
-        <th data-key="due">Due</th>
-        <th data-key="amt">Amount</th>
-        <th data-key="n">Notes</th>
-      </tr>
-    </thead>
-    <tbody id="rows"></tbody>
-  </table>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th data-key="d">Date</th>
+          <th data-key="acct" class="acct-col">Account</th>
+          <th data-key="f">From</th>
+          <th data-key="a">To</th>
+          <th data-key="s">Subject</th>
+          <th data-key="c">Category</th>
+          <th data-key="sa">Sub-action</th>
+          <th data-key="st">Status</th>
+          <th data-key="due">Due</th>
+          <th data-key="amt">Amount</th>
+          <th data-key="n">Notes</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
   <div class="empty" id="emptyMsg" style="display:none">No messages match the current filters.</div>
 </main>
 
@@ -186,6 +207,7 @@
   function render() {
     var rows = sorted(filtered());
     var tbody = document.getElementById('rows');
+    document.getElementById('statInView').textContent = rows.length.toLocaleString();
     document.getElementById('count').textContent = rows.length.toLocaleString() + ' message' + (rows.length === 1 ? '' : 's');
     document.getElementById('emptyMsg').style.display = rows.length ? 'none' : 'block';
     tbody.innerHTML = rows.map(function (r) {
@@ -206,13 +228,9 @@
     }).join('');
   }
 
-  // Chips
-  document.getElementById('chips').addEventListener('click', function (e) {
-    var chip = e.target.closest('.chip');
-    if (!chip) return;
-    document.querySelectorAll('#chips .chip').forEach(function (c) { c.classList.remove('active'); });
-    chip.classList.add('active');
-    state.cat = chip.getAttribute('data-cat') || '';
+  // Category
+  document.getElementById('categoryFilter').addEventListener('change', function (e) {
+    state.cat = e.target.value;
     render();
   });
 
