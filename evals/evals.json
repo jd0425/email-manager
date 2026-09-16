@@ -1,0 +1,26 @@
+{
+  "skill_name": "email-manager",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I want to set up an AI assistant to help triage my email inbox — bills, spam, all of that. Can you help me get this going?",
+      "expected_output": "Claude explains the prerequisite (an email/calendar MCP connection, e.g. the Google Workspace MCP for Gmail), points to setup steps rather than pretending it already has access, and interviews the user about their categories, what counts as 'safe to auto-delete', known accounts, and email aliases before touching any real inbox. States the no-permanent-delete-without-approval safety rule. Does not just start inventing triage actions against a hypothetical inbox with no setup.",
+      "files": [],
+      "expectations": []
+    },
+    {
+      "id": 2,
+      "prompt": "Here's a batch of emails from my inbox this week. Can you triage them the way we discussed — categorize each one and tell me what you'd do with it (file, delete, flag for review, calendar reminder, etc.)? Today's date is 2026-09-16.",
+      "expected_output": "Claude categorizes all 11 mock messages, defaulting ambiguous ones (recruiter email, prize/phishing-looking email, paid research study) to needs_review or spam rather than guessing, correctly identifies the bill (#1) and insurance reminder (#10) and dental appointment (#9) as needing calendar reminders with correct dates/amounts, recognizes message #11 as a payment-received receipt that should close out the reminder from #1 rather than create a duplicate, catalogs the misfiled receipt (#7) as category=receipt not promotion, and flags the recruiter role's PST-hours mismatch. No message is silently skipped.",
+      "files": ["evals/files/eval2-mock-emails.md"],
+      "expectations": []
+    },
+    {
+      "id": 3,
+      "prompt": "Give me my daily digest for today's triage session, based on this catalog.",
+      "expected_output": "Claude produces a digest with: stats (volume by category/status), a needs-review section listing the 2 needs_review rows, a hot-list/time-sensitive section calling out the 3 upcoming due dates/appointments (utility bill 9/28, insurance 9/21, dental appt 9/24, wireless bill 9/25, PS Plus renewal 9/19), and does not simply relist all 20 rows one-by-one.",
+      "files": ["evals/files/eval3-mock-catalog.csv"],
+      "expectations": []
+    }
+  ]
+}
