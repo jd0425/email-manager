@@ -40,14 +40,20 @@ wants to do before seeing value:
   turned into live reminders. Say this limit out loud when suggesting the
   fallback, and offer the live-connector path as the natural next step once
   the user has seen the workflow work on their own mail.
-- **Live connector (for ongoing, hands-off use).** An MCP server that can
-  read, label, and file email (Gmail in the reference implementation, via
-  the open-source Google Workspace MCP server) plus a calendar. If that's
-  not set up yet, read `references/setup.md` and walk the user through it —
-  don't try to fake this with a "describe what you'd do" answer. If a
-  different mail provider is in play, adapt the setup steps to whatever MCP
-  or API is available for it; the rest of this skill doesn't care which
-  provider is behind the tool calls.
+- **Live connector (for ongoing, hands-off use).** **Ask which email
+  provider the user is on before doing anything else here** — don't assume
+  Gmail just because it's the reference implementation. `references/setup.md`
+  documents the open-source Google Workspace MCP server end to end because
+  that's what's been verified in practice; for anything else (Outlook/
+  Microsoft 365, a different IMAP provider, a company's internal mail
+  system), say plainly that the *shape* of the setup still applies — an MCP
+  server or API with OAuth against that provider, scoped short of "send" —
+  but that Claude hasn't verified the specific steps for it the way it has
+  for Gmail, and work through the equivalent setup together rather than
+  guessing at exact commands/flags for an unfamiliar provider. Once the
+  provider is confirmed as Gmail, read `references/setup.md` and walk the
+  user through it — don't try to fake this with a "describe what you'd do"
+  answer.
 
 **Scope the permissions deliberately.** The reference setup grants read +
 organize (label/archive/trash) + compose-draft, but deliberately *not*
@@ -58,24 +64,28 @@ this tradeoff to the user rather than silently requesting broader scopes.
 
 Before triaging anything, get explicit answers to:
 
-1. **Categories.** What kinds of email actually show up in this inbox, and
+1. **Email provider** — Gmail, Outlook/Microsoft 365, something else? This
+   decides which connector setup applies (see "Prerequisite" above) and
+   should be confirmed before any connector setup starts, not discovered
+   partway through.
+2. **How many mailboxes.** One, or several (e.g. personal + work)? If more
+   than one, see "Multiple accounts" below before setting up connectors.
+3. **Categories.** What kinds of email actually show up in this inbox, and
    what should happen to each — auto-clear, file, flag for review, log to
    the ledger, create a calendar reminder? Start from the example category
    list in `references/categories.md`, but expect to add/remove/rename
    categories for this person's actual inbox (a student's categories look
    nothing like a small-business owner's).
-2. **What "safe to auto-delete" means to them.** Be conservative by
+4. **What "safe to auto-delete" means to them.** Be conservative by
    default — see Safety rules below — and let the user loosen it later
    once they've seen the catalog and trust the judgment calls.
-3. **Known accounts/institutions worth tracking** (bank, utilities, auto
+5. **Known accounts/institutions worth tracking** (bank, utilities, auto
    loan, employer, subscriptions) — seed `accounts.md`, but expect this to
    grow as new senders show up.
-4. **Aliases** — every address that lands in *this one inbox*, so
+6. **Aliases** — every address that lands in *this one inbox*, so
    misdirected mail for someone else with a similar name/address doesn't
    get acted on as if it were theirs. (This is different from having
    *multiple separate mailboxes* — see "Multiple accounts" below.)
-5. **How many mailboxes.** One, or several (e.g. personal + work)? If more
-   than one, see "Multiple accounts" below before setting up connectors.
 
 Write the answers into workspace copies of the reference files (don't edit
 the bundled `references/` copies in place — treat them as the starting
