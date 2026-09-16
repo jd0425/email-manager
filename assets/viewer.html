@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inbox Catalog</title>
+<style>
+  :root {
+    --bg: #f7f7f8; --panel: #ffffff; --border: #e2e2e6; --text: #1c1c1f;
+    --muted: #6b6b74; --accent: #3b5bfd; --warn: #c8460a; --warn-bg: #fdeee6;
+    --chip-bg: #eef0f6; --chip-active-bg: #1c1c1f; --chip-active-text: #fff;
+    --row-hover: #f2f3f7;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17171a; --panel: #1f1f23; --border: #303036; --text: #eceef2;
+      --muted: #9a9aa4; --accent: #7c93ff; --warn: #ff8f5c; --warn-bg: #3a2318;
+      --chip-bg: #2a2a30; --chip-active-bg: #eceef2; --chip-active-text: #17171a;
+      --row-hover: #26262c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  header {
+    padding: 20px 24px 16px; border-bottom: 1px solid var(--border); background: var(--panel);
+  }
+  header h1 { margin: 0 0 2px; font-size: 19px; }
+  header .sub { margin: 0 0 14px; color: var(--muted); font-size: 12.5px; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .stat {
+    background: var(--chip-bg); border-radius: 10px; padding: 8px 14px; min-width: 108px;
+  }
+  .stat.warn { background: var(--warn-bg); color: var(--warn); }
+  .stat .n { font-size: 18px; font-weight: 650; }
+  .stat .l { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+  .stat.warn .l { color: var(--warn); opacity: .85; }
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    background: var(--chip-bg); border-radius: 999px; padding: 5px 12px; font-size: 12.5px;
+    cursor: pointer; user-select: none; color: var(--text);
+  }
+  .chip.active { background: var(--chip-active-bg); color: var(--chip-active-text); }
+  select, input[type="search"] {
+    background: var(--panel); color: var(--text); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 10px; font-size: 13px;
+  }
+  .range-btns { display: flex; gap: 4px; }
+  .range-btns button {
+    background: var(--chip-bg); color: var(--text); border: none; border-radius: 8px;
+    padding: 6px 10px; font-size: 12.5px; cursor: pointer;
+  }
+  .range-btns button.active { background: var(--accent); color: #fff; }
+  main { padding: 16px 24px 40px; }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border-radius: 10px; overflow: hidden; }
+  thead th {
+    text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .03em;
+    color: var(--muted); padding: 10px 12px; border-bottom: 1px solid var(--border);
+    cursor: pointer; white-space: nowrap; position: sticky; top: 0; background: var(--panel);
+  }
+  thead th:hover { color: var(--text); }
+  tbody td {
+    padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top;
+    max-width: 320px; overflow: hidden; text-overflow: ellipsis;
+  }
+  tbody tr:hover { background: var(--row-hover); }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 11px;
+    background: var(--chip-bg);
+  }
+  .badge.needs_review { background: var(--warn-bg); color: var(--warn); }
+  .empty { text-align: center; color: var(--muted); padding: 40px 0; }
+  .count { color: var(--muted); font-size: 12.5px; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Inbox Catalog</h1>
+  <p class="sub">Inbox triage log &mdash; read-only snapshot, rebuilt after each batch (see build_viewer.py)</p>
+  <div class="stats">
+    <div class="stat"><div class="n">0</div><div class="l">total cataloged</div></div>
+    <div class="stat warn"><div class="n">0</div><div class="l">needs review</div></div>
+    <div class="stat"><div class="n">0</div><div class="l">auto-cleared</div></div>
+  </div>
+  <div class="controls">
+    <div class="chips" id="chips">
+      <span class="chip active" data-cat="">All categories</span>
+    </div>
+    <select id="statusFilter">
+      <option value="">All statuses</option>
+    </select>
+    <select id="acctFilter">
+      <option value="">All accounts</option>
+    </select>
+    <div class="range-btns" id="rangeBtns">
+      <button data-days="7" class="active">7d</button>
+      <button data-days="30">30d</button>
+      <button data-days="0">All</button>
+    </div>
+    <input type="search" id="search" placeholder="Search subject / sender / notes&hellip;">
+  </div>
+</header>
+<main>
+  <div class="count" id="count"></div>
+  <table>
+    <thead>
+      <tr>
+        <th data-key="d">Date</th>
+        <th data-key="acct" class="acct-col">Account</th>
+        <th data-key="f">From</th>
+        <th data-key="a">To</th>
+        <th data-key="s">Subject</th>
+        <th data-key="c">Category</th>
+        <th data-key="sa">Sub-action</th>
+        <th data-key="st">Status</th>
+        <th data-key="due">Due</th>
+        <th data-key="amt">Amount</th>
+        <th data-key="n">Notes</th>
+      </tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <div class="empty" id="emptyMsg" style="display:none">No messages match the current filters.</div>
+</main>
+
+<script id="catalog-data" type="application/json">[]</script>
+<script>
+(function () {
+  var DATA = JSON.parse(document.getElementById('catalog-data').textContent || '[]');
+  var NEWEST = new Date('2026-01-01T00:00:00');
+
+  var state = { cat: '', status: '', acct: '', days: 7, q: '', sortKey: 'd', sortDir: -1 };
+
+  var ACCOUNTS = {};
+  DATA.forEach(function (r) { if (r.acct) ACCOUNTS[r.acct] = true; });
+  var MULTI_ACCOUNT = Object.keys(ACCOUNTS).length > 1;
+  if (!MULTI_ACCOUNT) {
+    var acctFilterEl = document.getElementById('acctFilter');
+    if (acctFilterEl) acctFilterEl.style.display = 'none';
+    document.querySelectorAll('.acct-col').forEach(function (el) { el.style.display = 'none'; });
+  }
+
+  function within(dateStr, days) {
+    if (!days) return true;
+    if (!dateStr) return false;
+    var d = new Date(dateStr + 'T00:00:00');
+    var cutoff = new Date(NEWEST);
+    cutoff.setDate(cutoff.getDate() - days);
+    return d >= cutoff;
+  }
+
+  function filtered() {
+    var q = state.q.trim().toLowerCase();
+    return DATA.filter(function (r) {
+      if (state.cat && r.c !== state.cat) return false;
+      if (state.status && r.st !== state.status) return false;
+      if (state.acct && r.acct !== state.acct) return false;
+      if (!within(r.d, state.days)) return false;
+      if (q) {
+        var hay = (r.s + ' ' + r.f + ' ' + r.n).toLowerCase();
+        if (hay.indexOf(q) === -1) return false;
+      }
+      return true;
+    });
+  }
+
+  function sorted(rows) {
+    var k = state.sortKey, dir = state.sortDir;
+    return rows.slice().sort(function (a, b) {
+      var av = (a[k] || ''), bv = (b[k] || '');
+      if (av < bv) return -1 * dir;
+      if (av > bv) return 1 * dir;
+      return 0;
+    });
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function render() {
+    var rows = sorted(filtered());
+    var tbody = document.getElementById('rows');
+    document.getElementById('count').textContent = rows.length.toLocaleString() + ' message' + (rows.length === 1 ? '' : 's');
+    document.getElementById('emptyMsg').style.display = rows.length ? 'none' : 'block';
+    tbody.innerHTML = rows.map(function (r) {
+      var statusBadge = '<span class="badge ' + esc(r.st) + '">' + esc(r.st) + '</span>';
+      return '<tr>' +
+        '<td>' + esc(r.d) + '</td>' +
+        '<td class="acct-col">' + esc(r.acct) + '</td>' +
+        '<td>' + esc(r.f) + '</td>' +
+        '<td>' + esc(r.a) + '</td>' +
+        '<td>' + esc(r.s) + '</td>' +
+        '<td>' + esc(r.c) + '</td>' +
+        '<td>' + esc(r.sa) + '</td>' +
+        '<td>' + statusBadge + '</td>' +
+        '<td>' + esc(r.due) + '</td>' +
+        '<td>' + esc(r.amt) + '</td>' +
+        '<td>' + esc(r.n) + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  // Chips
+  document.getElementById('chips').addEventListener('click', function (e) {
+    var chip = e.target.closest('.chip');
+    if (!chip) return;
+    document.querySelectorAll('#chips .chip').forEach(function (c) { c.classList.remove('active'); });
+    chip.classList.add('active');
+    state.cat = chip.getAttribute('data-cat') || '';
+    render();
+  });
+
+  // Status
+  document.getElementById('statusFilter').addEventListener('change', function (e) {
+    state.status = e.target.value;
+    render();
+  });
+
+  // Account
+  document.getElementById('acctFilter').addEventListener('change', function (e) {
+    state.acct = e.target.value;
+    render();
+  });
+
+  // Range
+  document.getElementById('rangeBtns').addEventListener('click', function (e) {
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    document.querySelectorAll('#rangeBtns button').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    state.days = parseInt(btn.getAttribute('data-days'), 10);
+    render();
+  });
+
+  // Search
+  document.getElementById('search').addEventListener('input', function (e) {
+    state.q = e.target.value;
+    render();
+  });
+
+  // Sort
+  document.querySelectorAll('thead th').forEach(function (th) {
+    th.addEventListener('click', function () {
+      var key = th.getAttribute('data-key');
+      if (state.sortKey === key) { state.sortDir *= -1; }
+      else { state.sortKey = key; state.sortDir = 1; }
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
