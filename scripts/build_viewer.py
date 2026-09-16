@@ -3,10 +3,10 @@
 
 Self-hosting: the existing viewer.html is its own template. This script swaps
 in a fresh catalog-data JSON payload and updates the header counts / NEWEST
-anchor / category chips / status options, then rewrites viewer.html in place.
-It never hand-builds HTML strings for the data itself — only the small
-surrounding chrome (stat numbers, chip list, option list) gets patched via
-regex against known anchor points in the template.
+anchor / category, status, and account dropdown options, then rewrites
+viewer.html in place. It never hand-builds HTML strings for the data itself
+— only the small surrounding chrome (stat numbers, option lists) gets
+patched via regex against known anchor points in the template.
 
 Usage:  python3 build_viewer.py [path/to/catalog.csv] [path/to/viewer.html]
 Defaults to catalog.csv and viewer.html next to this script if not given.
@@ -80,18 +80,21 @@ def main():
     s = re.sub(r"var NEWEST = new Date\('[^']+'\);",
                "var NEWEST = new Date('%sT00:00:00');" % newest, s, count=1)
 
-    s = re.sub(r'[\d,]+ messages cataloged<br>\s*[\d-]+ &ndash; [\d-]+',
-               "{:,} messages cataloged<br>\n      {} &ndash; {}".format(total, oldest, newest),
+    s = re.sub(r'<div class="meta" id="headerMeta">.*?</div>',
+               '<div class="meta" id="headerMeta">{:,} messages cataloged &middot; {} &ndash; {}</div>'.format(
+                   total, oldest, newest),
                s, count=1)
 
-    s = re.sub(
-        r'<div class="stat"><div class="n">[\d,]+</div><div class="l">total cataloged</div></div>\s*'
-        r'<div class="stat warn"><div class="n">\d+</div><div class="l">needs review</div></div>\s*'
-        r'<div class="stat"><div class="n">\d+</div><div class="l">auto-cleared</div></div>',
-        '<div class="stat"><div class="n">{:,}</div><div class="l">total cataloged</div></div>\n    '
-        '<div class="stat warn"><div class="n">{}</div><div class="l">needs review</div></div>\n    '
-        '<div class="stat"><div class="n">{}</div><div class="l">auto-cleared</div></div>'.format(
-            total, needs_review, auto_cleared), s, count=1)
+    s = re.sub(r'<div class="n" id="statTotal">[\d,]*</div>',
+               '<div class="n" id="statTotal">{:,}</div>'.format(total), s, count=1)
+    s = re.sub(r'<div class="n" id="statReview">\d*</div>',
+               '<div class="n" id="statReview">{}</div>'.format(needs_review), s, count=1)
+    s = re.sub(r'<div class="n" id="statCleared">\d*</div>',
+               '<div class="n" id="statCleared">{}</div>'.format(auto_cleared), s, count=1)
+
+    cat_opts = "".join('<option value="%s">%s</option>' % (c, c.replace("_", " ")) for c in cats)
+    s = re.sub(r'(<option value="">All categories</option>\s*)(?:<option value="[^"]+">[^<]+</option>)*',
+               lambda m: m.group(1) + cat_opts, s, count=1)
 
     opt_order = ["needs_review", "pending_delete", "deleted", "kept", "filed", "spam", "cataloged"]
     opts = "".join('<option value="%s">%s</option>' % (o, o) for o in opt_order if o in statuses)
@@ -101,11 +104,6 @@ def main():
     acct_opts = "".join('<option value="%s">%s</option>' % (a, a) for a in accounts)
     s = re.sub(r'(<option value="">All accounts</option>\s*)(?:<option value="[^"]+">[^<]+</option>)*',
                lambda m: m.group(1) + acct_opts, s, count=1)
-
-    chip_html = '<span class="chip active" data-cat="">All categories</span>\n    ' + \
-        "".join('<span class="chip" data-cat="%s">%s</span>\n    ' % (c, c.replace("_", " ")) for c in cats)
-    s = re.sub(r'<span class="chip active" data-cat="">All categories</span>\s*'
-               r'(?:<span class="chip"[^>]*>[^<]*</span>\s*)*', chip_html, s, count=1)
 
     open(viewer_path, "w", encoding="utf-8").write(s)
     print("wrote", viewer_path)
