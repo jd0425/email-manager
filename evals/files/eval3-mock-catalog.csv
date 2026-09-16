@@ -1,0 +1,21 @@
+id,date_received,from,to_alias,subject,category,sub_action,status,review_needed,due_date,calendar_created,amount,notes
+e001,2026-09-15,billing@rivercity-utility.example,me@example.com,September statement ready,bill,recurring,cataloged,FALSE,2026-09-28,TRUE,92.14,electric bill
+e002,2026-09-15,deals@outletbrands.example,me@example.com,LAST CHANCE 40% off,promotion,expired,deleted,FALSE,,FALSE,,expired sale
+e003,2026-09-15,priya.recruiter@talentfirm.example,me@example.com,Backend Engineer opportunity,leads,direct_recruiter,needs_review,TRUE,,FALSE,,PST core hours vs remote EST preference
+e004,2026-09-15,promo@luckydraw-rewards.example,me@example.com,You WON a prize,other,phishing_like,spam,FALSE,,FALSE,,marked as spam
+e005,2026-09-15,delivery@parceltrack.example,me@example.com,Package delivered,delivery,food_delivery,deleted,FALSE,,FALSE,,order 48213
+e006,2026-09-15,offers@chaseline-bank.example,me@example.com,Pre-approved rewards card,promotion,confirmed_account,deleted,FALSE,,FALSE,,confirms Chaseline Bank account
+e007,2026-09-14,receipts@cloudhost.example,me@example.com,Your payment is processing,receipt,recurring_small,deleted,FALSE,,FALSE,12.00,misfiled under promotions tab
+e008,2026-09-14,studies@university-research.example,me@example.com,Paid UX study,other,novel,needs_review,TRUE,,FALSE,,first time sender paid study
+e009,2026-09-14,appointments@brightsmile-dental.example,me@example.com,Cleaning appt confirmed,appointment,new_appt,filed,FALSE,,TRUE,,Thu 9/24 2:30pm Dr Alvarez
+e010,2026-09-14,billing@safeguard-auto-insurance.example,me@example.com,Payment due in 5 days,bill,recurring,cataloged,FALSE,2026-09-21,TRUE,142.50,auto insurance
+e011,2026-09-13,news@dailydigestletter.example,me@example.com,Your weekly roundup,promotion,newsletter,deleted,FALSE,,FALSE,,routine newsletter
+e012,2026-09-13,hr@currentemployer.example,me@example.com,Open enrollment reminder,accounts,employer,filed,FALSE,,FALSE,,kept employer email
+e013,2026-09-13,no-reply@streamflix.example,me@example.com,Your show is back for season 4,entertainment,show_returning,kept,FALSE,,FALSE,,noted in digest
+e014,2026-09-12,billing@citypowerco.example,me@example.com,Autopay receipt,receipt,auto_payment,deleted,FALSE,,FALSE,64.10,routine autopay
+e015,2026-09-12,updates@learnhub.example,me@example.com,New course: Intro to SQL,learning,relevant_interest,kept,FALSE,,FALSE,,matches stated interest
+e016,2026-09-12,promo@mattressco.example,me@example.com,Labor Day sale,promotion,doesnt_match_history,deleted,FALSE,,FALSE,,no purchase history
+e017,2026-09-11,jobsdigest@indeedlike.example,me@example.com,5 new jobs matching your search,leads,digest_bundle,needs_review,TRUE,,FALSE,,bundled postings need review
+e018,2026-09-11,support@wirelessco.example,me@example.com,Your bill is ready,bill,recurring,cataloged,FALSE,2026-09-25,TRUE,58.00,mobile bill
+e019,2026-09-10,rewards@pspremium.example,me@example.com,Your subscription renews soon,entertainment,subscription_renewal,kept,FALSE,2026-09-19,FALSE,17.99,PS Plus renewal noted
+e020,2026-09-09,vagaro-style-booking@salonco.example,me@example.com,Appointment reminder,appointment,existing_appt,deleted,FALSE,,TRUE,,already on calendar
