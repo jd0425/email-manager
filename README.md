@@ -47,12 +47,14 @@ references/
   setup.md                  Gmail/Calendar MCP setup, including multiple accounts
   schema.md                 catalog.csv column reference, multi-account patterns
   categories.md             example category rules to fork and customize
-  finance.md                ledger.csv format and what to capture
+  finance.md                ledger.csv format, what to capture, bill-matching rules
 scripts/
   build_viewer.py           regenerates assets/viewer.html from catalog.csv
 assets/
   viewer.html               the clean starting template for the catalog viewer
 evals/                      the eval suite used to validate this skill (see below)
+docs/                       viewer screenshot
+CHANGELOG.md                release history
 ```
 
 ## Validated with Claude's eval loop, not just vibes
@@ -65,7 +67,7 @@ This skill was built and iterated using Anthropic's skill-creator eval workflow:
 | Response time | 75.2s ± 26.7s | 61.7s ± 3.6s | +13.5s |
 | Tokens used | 56,252 ± 4,027 | 47,829 ± 1,314 | +8,423 |
 
-The skill trades a bit of extra time/tokens (it's doing more — logging, categorizing, safety checks) for a materially more consistent, safer outcome across repeated runs. Full eval definitions and mock fixtures are in `evals/`.
+The skill trades a bit of extra time/tokens (it's doing more — logging, categorizing, safety checks) for a materially more consistent, safer outcome across repeated runs. The table covers those three evals. A fourth eval (bill matching and partial payments, added in v0.2.0) was run once as a simulated paper run, without a baseline comparison. Full eval definitions and mock fixtures are in `evals/`.
 
 ## Notes on the source material
 
