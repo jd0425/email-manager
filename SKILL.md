@@ -162,7 +162,9 @@ or conflicting rows) with the categorization rules and catalog schema
 inline in its instructions, have each one append to its own scratch CSV
 rather than writing `catalog.csv` directly, then merge the scratch files
 into the real catalog and rebuild the viewer once, after all chunks report
-back. Give the user a single consolidated report at the end — total
+back. A bill and its follow-up emails can land in different chunks, so
+re-run the bill matching from `references/finance.md` over the merged
+ledger scratch files to collapse duplicate rows and close paid ones. Give the user a single consolidated report at the end — total
 processed, breakdown by category and by action taken, and everything
 flagged `needs_review` — rather than one report per chunk; a wall of
 per-subagent status updates is harder to act on than one summary.
@@ -181,7 +183,8 @@ See `references/finance.md`. In short: capture recurring bills and
 noteworthy receipts into `ledger.csv` as they're seen in email (best-effort,
 not full reconciliation), and create a calendar reminder for anything with a
 due date. When a "payment received" confirmation shows up later, close out
-the existing reminder rather than creating a duplicate.
+the existing reminder rather than creating a duplicate. What counts as
+"matching" (including partial payments) is defined in `references/finance.md`.
 
 ## The catalog viewer
 

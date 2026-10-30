@@ -21,6 +21,13 @@
       "expected_output": "Claude produces a digest with: stats (volume by category/status), a needs-review section listing the 2 needs_review rows, a hot-list/time-sensitive section calling out the 3 upcoming due dates/appointments (utility bill 9/28, insurance 9/21, dental appt 9/24, wireless bill 9/25, PS Plus renewal 9/19), and does not simply relist all 20 rows one-by-one.",
       "files": ["evals/files/eval3-mock-catalog.csv"],
       "expectations": []
+    },
+    {
+      "id": 4,
+      "prompt": "Here are the bill-related emails from my backlog, oldest first. Update my ledger and calendar reminders. Today's date is 2026-05-02.",
+      "expected_output": "Claude treats a $15.99 monthly streaming subscription as one ledger row per due date: the March receipt closes only the March row and does not close April's bill (it predates April's date_seen). A reminder email for the same bill updates the existing row and calendar reminder instead of creating a second one. A $50 payment against a $120 bill is logged as 'partial $50 on <date>' in notes and the row stays open; a later $70 payment closes it. A payment that fits no open row or exceeds the bill is cataloged needs_review and appears in the digest, not guessed.",
+      "files": ["evals/files/eval4-mock-bills.md"],
+      "expectations": []
     }
   ]
 }

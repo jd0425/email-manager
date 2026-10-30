@@ -24,6 +24,43 @@ don't go straight into the CSV:
   shows up. Don't put investment balances in `ledger.csv` — that file is
   for bills/payments, not portfolio tracking.
 
+## Matching a later email to an existing bill row
+
+"Close the matching reminder" needs a definition, or one bill ends up with
+two rows and two calendar reminders (a statement email and its "due in 3
+days" email both look like a legitimate bill). Rules:
+
+1. **One row per statement/due date**, not per account per month. Two
+   separate bills from the same account in a month are two rows.
+2. **Same `account`.** `account` is free text, so keep it consistent: use
+   the payee's name, not the sender address, so a statement and a reminder
+   from different addresses still match.
+3. **A reminder or revised bill updates the existing row** (and its one
+   calendar reminder) instead of adding another. It matches when it has
+   the same account and amount, arrives on or after the row's `date_seen`,
+   and is within ~45 days of its `due_date`.
+4. **A payment applies to the oldest unpaid row** for that account with
+   `date_seen` on or before the payment date, so past-due bills clear
+   before the current cycle and a newer notice never takes a payment from
+   an older open one. Look back no more than ~45 days from `due_date`.
+5. **Exact amount** → fill `date_paid`, append the email id to `notes`,
+   and leave `source_email_id` as the original bill.
+6. **Less than the bill** → a partial payment. Append
+   `partial $X on <date>` to `notes` and leave the row open; close it once
+   the partials add up to the full amount. No balance column — this is not
+   reconciliation.
+7. **More than the bill, or fits no open row** → catalog it `needs_review`
+   and list it in the digest. Never guess a match.
+8. **Each email closes at most one row.**
+
+Example: a $15.99 monthly subscription. In a backlog, March's receipt must
+not close April's bill: it predates April's `date_seen`, and it closes only
+the oldest unpaid row.
+
+When a large backlog is split across subagents, a bill and its follow-up
+emails can land in different chunks that can't see each other's rows. Run
+this matching again when merging the scratch ledgers, not only per message.
+
 Keep the scope narrow on purpose: this is "don't lose track of a bill
 buried in an inbox," not a personal-finance app. If the user wants real
 budgeting/reconciliation, that's a different tool — say so rather than

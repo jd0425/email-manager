@@ -58,7 +58,8 @@ what should happen to it by default?**
   `finance/ledger.csv`, create a calendar reminder to pay, timed
   reasonably ahead of the due date.
 - A "payment received"/receipt email that arrives after → close out the
-  matching reminder rather than creating a new one.
+  matching reminder rather than creating a new one. "Matching" is defined
+  in `finance.md` ("Matching a later email to an existing bill row").
 
 ### Delivery / shipping notices
 
