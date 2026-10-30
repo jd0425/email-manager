@@ -71,6 +71,10 @@ The skill trades a bit of extra time/tokens (it's doing more — logging, catego
 
 This skill is a genericized version of a personal inbox-automation workflow originally built for one person's real Gmail. Every example in `references/categories.md`, every mock message in `evals/files/`, and the screenshot above use invented or synthetic data — no real email content, sender, or personal detail from the original deployment is included here.
 
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
