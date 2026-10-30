@@ -50,8 +50,24 @@ days" email both look like a legitimate bill). Rules:
    the partials add up to the full amount. No balance column — this is not
    reconciliation.
 7. **More than the bill, or fits no open row** → catalog it `needs_review`
-   and list it in the digest. Never guess a match.
+   and list it in the digest. Never guess a match. (A re-send of a payment
+   already recorded is a duplicate, rule 9, not a review item.)
 8. **Each email closes at most one row.**
+9. **Duplicates are not payments.** A payment email whose id is already in
+   `notes`, or that has the same account, amount and payment date as a
+   payment already recorded (full or partial), is a re-send. Note
+   `duplicate of #<id>` and move on: no review item, and never add it to
+   the partial total a second time.
+10. **Pending is not paid.** A "pending", "scheduled" or "processing"
+    email adds `pending $X on <date>` to `notes`. The row stays open and
+    `date_paid` stays empty; the digest shows it as "payment pending"
+    instead of due or overdue. A later reminder for the same bill only
+    updates the row and does not change the pending status.
+11. **"Received" or "posted" is the real payment.** It replaces the pending
+    note for the same amount, so the payment is counted once.
+12. **A pending note with no "received" email after ~7 days** is called
+    out in the digest ("pending for N days, did it go through?"). The row
+    stays open; don't assume it failed or succeeded.
 
 Example: a $15.99 monthly subscription. In a backlog, March's receipt must
 not close April's bill: it predates April's `date_seen`, and it closes only
