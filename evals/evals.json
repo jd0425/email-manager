@@ -21,6 +21,13 @@
       "expected_output": "Claude produces a digest with: stats (volume by category/status), a needs-review section listing the 2 needs_review rows, a hot-list/time-sensitive section calling out the 3 upcoming due dates/appointments (utility bill 9/28, insurance 9/21, dental appt 9/24, wireless bill 9/25, PS Plus renewal 9/19), and does not simply relist all 20 rows one-by-one.",
       "files": ["evals/files/eval3-mock-catalog.csv"],
       "expectations": []
+    },
+    {
+      "id": 4,
+      "prompt": "Here are the bill-related emails from my backlog, oldest first. Update my ledger and calendar reminders. Today's date is 2026-05-02.",
+      "expected_output": "Claude keeps one ledger row per due date: the March receipt closes only March's row, never April's, and the re-sent March receipt (#13) is logged as a duplicate with no review item. Reminder #2 and #15 update existing rows and reminders instead of creating new ones. Lakeside: $50 is a partial, the re-sent $50 (#8) is a duplicate and is not counted twice, $70 brings the total to $120 and closes the row, and the $300 (#11) is cataloged needs_review. Pending is not paid: Maple Water's pending $40 stays an open row with a pending note and is flagged in the digest as pending for 10 days; Birchwood's pending $80 does not close the row, the reminder after it only updates the row, and 'received' on 05-01 closes it once (not double-counted). StreamCo April is open and past due. Nothing is guessed.",
+      "files": ["evals/files/eval4-mock-bills.md"],
+      "expectations": []
     }
   ]
 }
